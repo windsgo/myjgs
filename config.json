@@ -1,0 +1,16 @@
+{
+    "item_score" : {
+        "Junqi" : [2, 0],
+        "Dilei" : [3, 15],
+        "Zhadan" : [4, 100],
+        "Silin" : [5, 220],
+        "Junzhang" : [6, 180],
+        "Shizhang" : [7, 120],
+        "Lvzhang" : [8, 80],
+        "Tuanzhang" : [9, 40],
+        "Yinzhang" : [10, 20],
+        "Lianzhang" : [11, 10],
+        "Paizhang" : [12, 5],
+        "Gongbing" : [13, 30]
+    }
+}

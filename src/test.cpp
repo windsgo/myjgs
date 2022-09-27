@@ -3,7 +3,9 @@
 #include <string>
 #include <codecvt>
 #include <locale>
+#include <exception>
 
+#include "config.h"
 
 #include <fstream>
 
@@ -67,6 +69,31 @@ void testread() {
     in_file.close();
 }
 
+void testread2() {
+    std::ifstream in_file(file_dir, std::ios::binary);
+    if (!in_file) {
+        std::cerr << "open error, file_dir: " << file_dir << std::endl;
+        return;
+    }
+
+    JGSTotalInfoBlock info;
+    in_file.read(reinterpret_cast<char*>(&info), sizeof(info));
+
+    JGSEventBlock event1;
+    in_file.read(reinterpret_cast<char*>(&event1), sizeof(event1));
+
+    
+
+    auto& os = std::cout;
+
+    os << info << "\n";
+
+    for (size_t i = 0; i < sizeof(event1); ++i) {
+        printf("%x\n", event1.byte[i]);
+    }
+
+    in_file.close();
+}
 
 int main(int argc, char** argv) {
     static_assert(sizeof(ItemColor) == 1);
@@ -79,12 +106,26 @@ int main(int argc, char** argv) {
     static_assert(sizeof(JGSPLayerInfoBlock) == 88);
     static_assert(sizeof(JGSTotalInfoBlock) == 0x19c);
 
-    std::cout << item_type2string(ItemType::Dilei) << std::endl;
-    Item item;
-    // item.set_type(ItemType::Gongbing);
-    std::cout << item << std::endl;
-    testread();
+    std::cout << ConfigManager::getUniqueInstance()->addConfigFile("default", "config.json") << std::endl;
+    auto v = ConfigManager::getUniqueInstance()->getConfig("default")->at("item_score");
+    for (auto&& [name, value] : v.as_object()) {
+        std::cout << name << ": [" << value.as_array().at(0) << ", " << value.as_array().at(1) << "]\n";
+    }
+    try {
+        ConfigManager::getUniqueInstance()->getConfig("default")->at("1");
+    } catch (const std::out_of_range& oor) {
+        std::cerr << oor.what() << std::endl;
+    }
+    
+    
+    std::ifstream ifs("config.json");
 
-    std::cout << sizeof(bool) << std::endl;
+    // json::parse()
+
+    ifs.close();
+    
+
+    testread2();
+
     return 0;
 }

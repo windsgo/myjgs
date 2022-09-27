@@ -61,11 +61,10 @@ struct __attribute__ ((__packed__)) JGSEventBlock {
 // jgs file info block, exclude event blocks, which is of dynamic size
 // 0x000 ~ 0x19b
 struct __attribute__ ((__packed__)) JGSTotalInfoBlock {
+    static constexpr int player_number = 4;
+
     JGSHeaderBlock header_block;
-    JGSPLayerInfoBlock player_0_info_block;
-    JGSPLayerInfoBlock player_1_info_block;
-    JGSPLayerInfoBlock player_2_info_block;
-    JGSPLayerInfoBlock player_3_info_block;
+    JGSPLayerInfoBlock player_info_block[player_number];
     char _n[28]; // 0x180 ~ 0x19B
 };
 
@@ -76,3 +75,5 @@ struct __attribute__ ((__packed__)) JGSFileTailBlock {
 
 std::ostream& operator<<(std::ostream& os, const JGSLayoutBlock& jgs_layout);
 std::ostream& operator<<(std::ostream& os, const JGSHeaderBlock& jgs_header);
+std::ostream& operator<<(std::ostream& os, const JGSPLayerInfoBlock& jgs_player_info);
+std::ostream& operator<<(std::ostream& os, const JGSTotalInfoBlock& jgs_total_info);
