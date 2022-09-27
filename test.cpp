@@ -74,6 +74,11 @@ int main(int argc, char** argv) {
     static_assert(sizeof(bool) == 1);
 
     std::cout << sizeof(JGSPLayerInfoBlock) << std::endl;
+    std::cout << sizeof(JGSTotalInfoBlock) << std::endl;
+
+    static_assert(sizeof(JGSPLayerInfoBlock) == 88);
+    static_assert(sizeof(JGSTotalInfoBlock) == 0x19c);
+
     std::cout << item_type2string(ItemType::Dilei) << std::endl;
     Item item;
     // item.set_type(ItemType::Gongbing);
