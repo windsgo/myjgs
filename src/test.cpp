@@ -4,6 +4,7 @@
 #include <codecvt>
 #include <locale>
 #include <exception>
+#include <array>
 
 #include "config.h"
 
@@ -11,10 +12,11 @@
 
 #include "item.h"
 #include "block.h"
+#include "event.h"
 
 #include <cstdio>
 
-const std::string file_dir = "./test.jgs";
+const std::string file_dir = "./test3.jgs";
 
 // std::string StringToUTF8(const std::string& gbkData)
 // {
@@ -80,17 +82,23 @@ void testread2() {
     in_file.read(reinterpret_cast<char*>(&info), sizeof(info));
 
     JGSEventBlock event1;
-    in_file.read(reinterpret_cast<char*>(&event1), sizeof(event1));
-
     
-
+    
     auto& os = std::cout;
 
     os << info << "\n";
-
-    for (size_t i = 0; i < sizeof(event1); ++i) {
-        printf("%x\n", event1.byte[i]);
+    for (int i = 0; i < 5; ++i) {
+        in_file.read(reinterpret_cast<char*>(&event1), sizeof(event1));
+        for (size_t i = 0; i < sizeof(event1); ++i) {
+            printf("%x ", event1.byte[i]);
+        }
+        printf("\n");
+        os << event1 << std::endl;
     }
+
+    
+
+    
 
     in_file.close();
 }
@@ -105,7 +113,9 @@ int main(int argc, char** argv) {
 
     static_assert(sizeof(JGSPLayerInfoBlock) == 88);
     static_assert(sizeof(JGSTotalInfoBlock) == 0x19c);
+    static_assert(sizeof(JGSEventBlock) == 10);
 
+    // test
     std::cout << ConfigManager::getUniqueInstance()->addConfigFile("default", "config.json") << std::endl;
     auto v = ConfigManager::getUniqueInstance()->getConfig("default")->at("item_score");
     for (auto&& [name, value] : v.as_object()) {
@@ -117,12 +127,6 @@ int main(int argc, char** argv) {
         std::cerr << oor.what() << std::endl;
     }
     
-    
-    std::ifstream ifs("config.json");
-
-    // json::parse()
-
-    ifs.close();
     
 
     testread2();

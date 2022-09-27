@@ -1,5 +1,6 @@
 #include "type.h"
 #include <unordered_map>
+#include <cassert>
 
 using ItemTypeMap = std::unordered_map<ItemType, std::string>;
 using ItemColorMap = std::unordered_map<ItemColor, std::string>;
@@ -89,5 +90,52 @@ std::ostream& operator<<(std::ostream& os, const ItemType& item_type) {
 
 std::ostream& operator<<(std::ostream& os, const ItemColor& item_color) {
     os << itemcolor_type2string(item_color);
+    return os;
+}
+
+static const Position NonePosition = {0, 0};
+
+std::ostream &operator<<(std::ostream &os, const Position& pos) {
+    char buf[50];
+    sprintf(buf, "Pos(row:%2x, col:%2x)", pos.row, pos.col);
+    os << buf;
+    return os;
+}
+
+std::string event_type2string(const EventType& event_type) {
+    switch (event_type)
+    {
+    case EventType::MoveEventType:
+        return "动作命令";
+        break;
+    
+    case EventType::InfoEventType:
+        return "通知命令";
+        break;
+
+    default:
+        return "未知命令";
+        break;
+    }
+}
+
+static const std::array<std::string, 4> moveresult_arr = {
+    "移动", "吃子", "反弹", "交换"
+};
+
+std::string event_moveresult2string(const MoveResultType &move_result) {
+    return moveresult_arr.at(static_cast<uint8_t>(move_result));
+}
+
+std::ostream &operator<<(std::ostream &os, const EventType &event_type) {
+    os << event_type2string(event_type);
+    return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const MoveResultType &move_result) {
+    if ((int)move_result < 4)
+        os << event_moveresult2string(move_result);
+    
+    assert(move_result < 4);
     return os;
 }

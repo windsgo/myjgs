@@ -53,9 +53,31 @@ struct __attribute__ ((__packed__)) JGSPLayerInfoBlock {
 };
 
 // 10 bytes
+
+#define _assert_move assert(this->event_type() == EventType::MoveEventType)
+#define _assert_info assert(this->event_type() == EventType::InfoEventType)
+
 struct __attribute__ ((__packed__)) JGSEventBlock {
     // char event_type;                // 0x5F: move, 0xF5, info
-    char byte[10];
+    uint8_t byte[10];
+
+    EventType event_type() const {return static_cast<EventType>(byte[0]);}
+
+    // move event
+    bool move_has_40_dead() const {_assert_move; return !!(byte[1] & 0b01000000);}
+    // 事件中的byte[1]的bit[3~4]位对应规则:
+    // 黄11，紫10，绿01，蓝00
+    _ItemColor move_color() const {_assert_move; return static_cast<_ItemColor>((((byte[1] & 0b00011000) >> 3) + 1) % 4);} // ?，颜色对应比较奇怪，凑的
+    MoveResultType move_result() const {_assert_move; return static_cast<MoveResultType>(byte[1] & 0b11);}
+    Position move_start_pos() const {_assert_move; return {byte[2], byte[3]};}
+    Position move_end_pos() const {_assert_move; return {byte[4], byte[5]};}
+    Position move_attacker_banner_pos() const {_assert_move; return {byte[6], byte[7]};} // 进攻方军旗位置，都为0则表示不显示
+    bool move_show_attacker_banner() const {_assert_move; return (byte[6] != 0 || byte[7] != 0);}
+    Position move_defender_banner_pos() const {_assert_move; return {byte[8], byte[9]};} // 被进攻方
+    bool move_show_defender_banner() const {_assert_move; return (byte[8] != 0 || byte[9] != 0);}
+
+    // info event
+    // todo
 };
 
 // jgs file info block, exclude event blocks, which is of dynamic size
@@ -77,3 +99,4 @@ std::ostream& operator<<(std::ostream& os, const JGSLayoutBlock& jgs_layout);
 std::ostream& operator<<(std::ostream& os, const JGSHeaderBlock& jgs_header);
 std::ostream& operator<<(std::ostream& os, const JGSPLayerInfoBlock& jgs_player_info);
 std::ostream& operator<<(std::ostream& os, const JGSTotalInfoBlock& jgs_total_info);
+std::ostream& operator<<(std::ostream& os, const JGSEventBlock& jgs_event);
