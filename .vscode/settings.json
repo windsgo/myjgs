@@ -40,7 +40,9 @@
         "map": "cpp",
         "set": "cpp",
         "functional": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "cstring": "cpp",
+        "list": "cpp"
     },
     "cmake.configureOnOpen": true
 }

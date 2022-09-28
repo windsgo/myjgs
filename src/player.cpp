@@ -1,5 +1,7 @@
 #include "player.h"
 
+namespace myjgs {
+
 Player::Player(const JGSPLayerInfoBlock &player_info)
 {
     memcpy(_name, player_info.player_name, 20);
@@ -65,4 +67,6 @@ int Player::get_current_score() const {
 
 bool Player::has_item(const Position& pos) const {
     return (_pos_item_map.find(pos) != _pos_item_map.end()); // not equal means 'has'
+}
+
 }

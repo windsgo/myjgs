@@ -9,6 +9,8 @@
 
 #define _sizeof_type(T) (size_t)((T*)0 + 1)   //适用于类型
 
+namespace myjgs {
+
 using _ItemColor = ItemColor;
 using _ItemType = ItemType;
 
@@ -106,8 +108,10 @@ struct __attribute__ ((__packed__)) JGSFileTailBlock {
     char tail[8];
 };
 
-std::ostream& operator<<(std::ostream& os, const JGSLayoutBlock& jgs_layout);
-std::ostream& operator<<(std::ostream& os, const JGSHeaderBlock& jgs_header);
-std::ostream& operator<<(std::ostream& os, const JGSPLayerInfoBlock& jgs_player_info);
-std::ostream& operator<<(std::ostream& os, const JGSTotalInfoBlock& jgs_total_info);
-std::ostream& operator<<(std::ostream& os, const JGSEventBlock& jgs_event);
+::std::ostream& operator<<(::std::ostream& os, const JGSLayoutBlock& jgs_layout);
+::std::ostream& operator<<(::std::ostream& os, const JGSHeaderBlock& jgs_header);
+::std::ostream& operator<<(::std::ostream& os, const JGSPLayerInfoBlock& jgs_player_info);
+::std::ostream& operator<<(::std::ostream& os, const JGSTotalInfoBlock& jgs_total_info);
+::std::ostream& operator<<(::std::ostream& os, const JGSEventBlock& jgs_event);
+
+}

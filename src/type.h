@@ -12,6 +12,8 @@ Class& operator=(const Class&) = delete;
 
 #define _unused(val) {}
 
+namespace myjgs {
+
 // explicitly size to 1 byte
 enum ItemType : uint8_t
 {
@@ -72,20 +74,6 @@ struct __attribute__((__packed__)) Position
     static Position from_init_layout_pos(int row, int col);
 };
 
-// in order to use std::unordered_map
-// define the hash<Position> 
-namespace std
-{
-    template<>
-    struct hash<Position>
-    {
-        size_t operator() (const Position& p) const noexcept
-        {
-            return  hash<decltype(p.row << 2 + p.col)>()(p.row << 2 + p.col);
-        }
-    }; // 间接调用原生Hash.
-}
-
 std::ostream &operator<<(std::ostream &os, const Position& pos);
 
 enum EventType : uint8_t
@@ -141,6 +129,7 @@ std::ostream &operator<<(std::ostream &os, const MoveResultType &move_result);
  * 0x10 ···  ···           ··· 0x01 0x00
  */
 
+
 class GameException : std::exception {
 public:
     GameException(const std::string& err_str) : _err_str(err_str) {}
@@ -150,3 +139,19 @@ public:
 public:
     std::string _err_str;
 };
+
+}
+
+// in order to use std::unordered_map
+// define the hash<Position> 
+namespace std
+{
+    template<>
+    struct hash<myjgs::Position>
+    {
+        size_t operator() (const myjgs::Position& p) const noexcept
+        {
+            return hash<decltype(p.row << 2 + p.col)>()(p.row << 2 + p.col);
+        }
+    }; // 间接调用原生Hash.
+}

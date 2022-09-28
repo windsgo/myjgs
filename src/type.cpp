@@ -2,9 +2,11 @@
 #include <unordered_map>
 #include <cassert>
 
-using ItemTypeMap = std::unordered_map<ItemType, std::string>;
-using ItemColorMap = std::unordered_map<ItemColor, std::string>;
-using ItemScoreMap = std::unordered_map<ItemType, ItemScore>;
+namespace myjgs {
+
+using ItemTypeMap = ::std::unordered_map<ItemType, ::std::string>;
+using ItemColorMap = ::std::unordered_map<ItemColor, ::std::string>;
+using ItemScoreMap = ::std::unordered_map<ItemType, ItemScore>;
 
 #ifdef ItemTypeStringShort
 static const ItemTypeMap itemtype_map = {
@@ -64,15 +66,15 @@ static ItemScoreMap itemscore_map = {
     {ItemType::Gongbing,  30}
 };
 
-std::string item_type2string(const ItemType& item_type) {
+::std::string item_type2string(const ItemType& item_type) {
     return itemtype_map.at(item_type);
 }
 
-std::string item_type2string(uint8_t item_type) {
+::std::string item_type2string(uint8_t item_type) {
     return item_type2string(static_cast<ItemType>(item_type));
 }
 
-std::string itemcolor_type2string(const ItemColor& item_color) {
+::std::string itemcolor_type2string(const ItemColor& item_color) {
     return itemcolor_map.at(item_color);
 }
 
@@ -84,12 +86,12 @@ void set_item_score(const ItemType& item_type, const ItemScore& score) {
     itemscore_map.at(item_type) = score;
 }
 
-std::ostream& operator<<(std::ostream& os, const ItemType& item_type) {
+::std::ostream& operator<<(::std::ostream& os, const ItemType& item_type) {
     os << item_type2string(item_type);
     return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const ItemColor& item_color) {
+::std::ostream& operator<<(::std::ostream& os, const ItemColor& item_color) {
     os << itemcolor_type2string(item_color);
     return os;
 }
@@ -138,14 +140,14 @@ Position Position::from_init_layout_pos(int row, int col) {
     return {(Axis)(row + 0x0B), (Axis)(0x0A - col)};
 }
 
-std::ostream &operator<<(std::ostream &os, const Position& pos) {
+::std::ostream &operator<<(::std::ostream &os, const Position& pos) {
     char buf[50];
     sprintf(buf, "(r:%2x, c:%2x)", pos.row, pos.col);
     os << buf;
     return os;
 }
 
-std::string event_type2string(const EventType& event_type) {
+::std::string event_type2string(const EventType& event_type) {
     switch (event_type)
     {
     case EventType::MoveEventType:
@@ -162,23 +164,25 @@ std::string event_type2string(const EventType& event_type) {
     }
 }
 
-static const std::array<std::string, 4> moveresult_arr = {
+static const ::std::array<::std::string, 4> moveresult_arr = {
     "移动", "吃子", "反弹", "交换"
 };
 
-std::string event_moveresult2string(const MoveResultType &move_result) {
+::std::string event_moveresult2string(const MoveResultType &move_result) {
     return moveresult_arr.at(static_cast<uint8_t>(move_result));
 }
 
-std::ostream &operator<<(std::ostream &os, const EventType &event_type) {
+::std::ostream &operator<<(::std::ostream &os, const EventType &event_type) {
     os << event_type2string(event_type);
     return os;
 }
 
-std::ostream &operator<<(std::ostream &os, const MoveResultType &move_result) {
+::std::ostream &operator<<(::std::ostream &os, const MoveResultType &move_result) {
     if ((int)move_result < 4)
         os << event_moveresult2string(move_result);
     
     assert(move_result < 4);
     return os;
+}
+
 }

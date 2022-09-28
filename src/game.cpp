@@ -1,6 +1,8 @@
 #include "game.h"
 
-Game::Game(const std::string &jgs_file_name)
+namespace myjgs {
+
+Game::Game(const ::std::string &jgs_file_name)
     : _jgs_file_name(jgs_file_name)
 {
     _init();
@@ -8,7 +10,7 @@ Game::Game(const std::string &jgs_file_name)
 
 void Game::_init()
 {
-    std::ifstream ifs(_jgs_file_name);
+    ::std::ifstream ifs(_jgs_file_name);
     if (!ifs.is_open())
     {
         throw GameException("open file error");
@@ -32,10 +34,10 @@ void Game::_init()
 
     for (int i = 0; i < 4; ++i)
     {
-        Player::ptr player = std::make_shared<Player>(total_info.player_info_block[i]);
-        Player::ptr saved_player = std::make_shared<Player>(*player); // not used, deep copy
+        Player::ptr player = ::std::make_shared<Player>(total_info.player_info_block[i]);
+        Player::ptr saved_player = ::std::make_shared<Player>(*player); // not used, deep copy
 
-        _color_player_map.insert(std::make_pair(player->color(), player));
+        _color_player_map.insert(::std::make_pair(player->color(), player));
     }
 
     // read events
@@ -45,10 +47,10 @@ void Game::_init()
         ifs.read(reinterpret_cast<char *>(&ev), sizeof(ev));
         if (ifs.bad())
         {
-            throw GameException("read events failed on: " + std::to_string(i));
+            throw GameException("read events failed on: " + ::std::to_string(i));
         }
 
-        _event_list.push_back(std::move(ev)); // here move makes no sense
+        _event_list.push_back(::std::move(ev)); // here move makes no sense
     }
 
     ifs.close();
@@ -90,7 +92,7 @@ void Game::_process_event(const JGSEventBlock &ev)
         break; // next event
 
     case EventType::UnknownEventType:
-        std::cout << ev.event_type() << std::endl;
+        ::std::cout << ev.event_type() << ::std::endl;
         break;
 
     case EventType::MoveEventType:
@@ -183,10 +185,10 @@ PlayerColor Game::_which_player(const Position& pos, PlayerColor ignore_color) c
 }
 
 void Game::_print() const {
-    std::cout << *this << std::endl;
+    ::std::cout << *this << ::std::endl;
 }
 
-std::ostream& operator<<(std::ostream& os, const Game& game) {
+::std::ostream& operator<<(::std::ostream& os, const Game& game) {
     for (Axis row = 0; row <= Position::max_axis; ++row) {
         for (int col = Position::max_axis + 1; col >= 0; --col) {
             auto color = game._which_player({row, Axis(col)});
@@ -200,4 +202,6 @@ std::ostream& operator<<(std::ostream& os, const Game& game) {
     }
 
     return os;
+}
+
 }

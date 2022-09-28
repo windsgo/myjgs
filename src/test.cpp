@@ -37,14 +37,16 @@ const std::string file_dir = "./test.jgs";
 
 void testGame() {
     try {
-        Game::ptr game = std::make_shared<Game>(file_dir);
+        myjgs::Game::ptr game = std::make_shared<myjgs::Game>(file_dir);
         game->process_all_events();
-    } catch (const GameException& e) {
+    } catch (const myjgs::GameException& e) {
         std::cout << "gameexception:" << e.what() << std::endl;
     } catch (const std::exception& e) {
         std::cout << e.what() << std::endl;
     }
 }
+
+using namespace myjgs;
 
 int main(int argc, char** argv) {
     // system("chcp 65001");
