@@ -16,7 +16,8 @@ public:
     Item() = default;
     Item(const ItemType &type, const ItemColor &color, const Position &pos)
         : _type(type), _color(color), _pos(pos) {}
-    _disable_copy(Item);
+    
+    Item(const Item& rhs) : _type(rhs._type), _color(rhs._color), _pos(rhs._pos) {}
 
     ItemType get_type() const { return _type; }
     void set_type(const ItemType &type) { _type = type; }

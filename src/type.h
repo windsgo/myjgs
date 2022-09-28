@@ -36,7 +36,8 @@ enum ItemColor : uint8_t
     YELLOW = 0,
     BLUE = 1,
     GREEN = 2,
-    PURPLE = 3
+    PURPLE = 3,
+    UNKNOWN_COLOR = 0xff
 };
 
 using ItemScore = uint32_t;
@@ -102,11 +103,31 @@ enum MoveResultType : uint8_t
     ResultSwap = 3     // 交换，打对
 };
 
+enum InfoResultType : uint8_t
+{
+    InfoTimeout = 2,
+    InfoPlayerDead = 3,
+    InfoPlayerQuit = 4,
+    InfoGameOver = 5
+};
+
+enum InfoGameOverType : uint8_t
+{
+    GameOverTypeDraw = 0x02,
+    GameOverTypeCommon = 0x04,
+    GameOverTypePlayerForceQuit = 0x06,
+    GameOverTypePlayerRequestQuit = 0x07
+};
+
 std::string event_type2string(const EventType& event_type);
 std::string event_moveresult2string(const MoveResultType &move_result);
 
 std::ostream &operator<<(std::ostream &os, const EventType &event_type);
 std::ostream &operator<<(std::ostream &os, const MoveResultType &move_result);
+
+// todo
+// std::ostream &operator<<(std::ostream &os, const InfoResultType &info_result);
+// std::ostream &operator<<(std::ostream &os, const InfoGameOverType &gameover_type);
 
 /**
  * Position Value Define
@@ -119,3 +140,13 @@ std::ostream &operator<<(std::ostream &os, const MoveResultType &move_result);
  *              Yellow                  0x10
  * 0x10 ···  ···           ··· 0x01 0x00
  */
+
+class GameException : std::exception {
+public:
+    GameException(const std::string& err_str) : _err_str(err_str) {}
+    virtual const char* what() const throw() {
+        return _err_str.c_str();
+    }
+public:
+    std::string _err_str;
+};

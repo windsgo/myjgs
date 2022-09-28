@@ -1,0 +1,5 @@
+1. solve gbk -> utf-8 (name print)
+2. optimize error handle
+3. implement customizing item values by json(need to insert into code)
+4. argc, argv <- filename
+5. make a library, and linked to a DrawWidget made by Qt

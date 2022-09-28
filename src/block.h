@@ -66,9 +66,12 @@ struct __attribute__ ((__packed__)) JGSEventBlock {
 
     // move event
     bool move_has_40_dead() const {_assert_move; return !!(byte[1] & 0b01000000);}
+    
     // 事件中的byte[1]的bit[3~4]位对应规则:
     // 黄11，紫10，绿01，蓝00
-    _ItemColor move_color() const {_assert_move; return static_cast<_ItemColor>((((byte[1] & 0b00011000) >> 3) + 1) % 4);} // ?，颜色对应比较奇怪，凑的
+    //! not reliable, has a bug after one player is dead
+    // _ItemColor move_color() const {_assert_move; return static_cast<_ItemColor>((((byte[1] & 0b00011000) >> 3) + 1) % 4);} // ?，颜色对应比较奇怪，凑的
+    
     MoveResultType move_result() const {_assert_move; return static_cast<MoveResultType>(byte[1] & 0b11);}
     Position move_start_pos() const {_assert_move; return {byte[2], byte[3]};}
     Position move_end_pos() const {_assert_move; return {byte[4], byte[5]};}
@@ -78,6 +81,13 @@ struct __attribute__ ((__packed__)) JGSEventBlock {
     bool move_show_defender_banner() const {_assert_move; return (byte[8] != 0 || byte[9] != 0);}
 
     // info event
+    InfoResultType info_result() const {_assert_info; return static_cast<InfoResultType>(byte[1]);}
+    
+    _ItemColor info_dead_player_color() const {_assert_info; return static_cast<_ItemColor>(byte[2]);}
+    _ItemColor info_quit_player_color() const {_assert_info; return static_cast<_ItemColor>(byte[2]);}
+    _ItemColor info_timeout_player_color() const {_assert_info; return static_cast<_ItemColor>(byte[2]);}
+
+    InfoGameOverType info_game_over_type() const {_assert_info; return static_cast<InfoGameOverType>(byte[3]);}
     // todo
 };
 

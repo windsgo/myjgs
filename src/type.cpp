@@ -45,6 +45,7 @@ static const ItemColorMap itemcolor_map = {
     {ItemColor::BLUE,     "蓝色"},
     {ItemColor::GREEN,    "绿色"},
     {ItemColor::PURPLE,   "紫色"},
+    {ItemColor::UNKNOWN_COLOR,   "无色"}, // ^ ^
 };
 
 static ItemScoreMap itemscore_map = {
@@ -109,7 +110,7 @@ void Position::rotate_counter_clockwise(int times) {
         this->row = (Axis)(max_axis - this->row);
         this->col = (Axis)(max_axis - this->col);
     } else if (times == 3) {
-        auto old_row = this->col;
+        auto old_row = this->row;
         this->row = (Axis)(max_axis - this->col);
         this->col = old_row;
     }

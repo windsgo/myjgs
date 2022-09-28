@@ -11,6 +11,7 @@ Player::Player(const JGSPLayerInfoBlock &player_info)
     {
         for (int init_col = 0; init_col < JGSLayoutBlock::col_num; ++init_col)
         {
+            if (_init_layout.item(init_row, init_col) == ItemType::JQNone) continue;
             Position pos = Position::from_init_layout_pos(init_row, init_col);
             switch (_color)
             {
@@ -40,13 +41,16 @@ Player::Player(const JGSPLayerInfoBlock &player_info)
    
 }
 
-#include <iostream>
 void Player::remove_item(const Position& pos) {
-    _pos_item_map.erase(pos);
+    if (_pos_item_map.erase(pos) != 1) {
+        throw GameException("Player::remove_item failed");
+    }
 }
 
 void Player::remove_item(Item::ptr item_ptr) {
-    _pos_item_map.erase(item_ptr->get_pos());
+    if (_pos_item_map.erase(item_ptr->get_pos()) != 1) {
+        throw GameException("Player::remove_item failed");
+    }
 }
 
 int Player::get_current_score() const {
@@ -57,4 +61,8 @@ int Player::get_current_score() const {
     }
 
     return score;
+}
+
+bool Player::has_item(const Position& pos) const {
+    return (_pos_item_map.find(pos) != _pos_item_map.end()); // not equal means 'has'
 }

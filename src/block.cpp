@@ -41,7 +41,7 @@ std::ostream& operator<<(std::ostream& os, const JGSEventBlock& jgs_event) {
     os << "JGS_EVENT: " << jgs_event.event_type() << ", ";
     if (jgs_event.event_type() == EventType::MoveEventType) {
         os << (jgs_event.move_has_40_dead() ? "有" : "无") << "40死亡, ";
-        os << "移动方:" << jgs_event.move_color() << ", ";
+        // os << "移动方:" << jgs_event.move_color() << ", ";
         os << "结果:" << jgs_event.move_result() << ", ";
         os << "起始位置:" << jgs_event.move_start_pos() << ", ";
         os << "到达位置:" << jgs_event.move_end_pos() << ", ";

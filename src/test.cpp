@@ -5,6 +5,7 @@
 #include <locale>
 #include <exception>
 #include <array>
+#include <cstdlib>
 
 #include "config.h"
 
@@ -14,10 +15,11 @@
 #include "block.h"
 #include "event.h"
 #include "player.h"
+#include "game.h"
 
 #include <cstdio>
 
-const std::string file_dir = "./test3.jgs";
+const std::string file_dir = "./test.jgs";
 
 // std::string StringToUTF8(const std::string& gbkData)
 // {
@@ -31,86 +33,21 @@ const std::string file_dir = "./test3.jgs";
 //     std::string utf8str = convert.to_bytes(wString);     // wstring => utf-8
 
 //     return utf8str;
-// }
+// }    
 
-void testread() {
-    std::ifstream in_file(file_dir, std::ios::binary);
-    if (!in_file) {
-        std::cerr << "open error, file_dir: " << file_dir << std::endl;
-        return;
+void testGame() {
+    try {
+        Game::ptr game = std::make_shared<Game>(file_dir);
+        game->process_all_events();
+    } catch (const GameException& e) {
+        std::cout << "gameexception:" << e.what() << std::endl;
+    } catch (const std::exception& e) {
+        std::cout << e.what() << std::endl;
     }
-
-    JGSHeaderBlock header;
-    in_file.read(reinterpret_cast<char *>(&header), sizeof(header));
-
-    JGSPLayerInfoBlock player1_info;
-    in_file.read(reinterpret_cast<char *>(&player1_info), sizeof(player1_info));
-
-    
-    JGSPLayerInfoBlock player2_info;
-    in_file.read(reinterpret_cast<char *>(&player2_info), sizeof(player2_info));
-
-
-    std::cout << header;
-
-    // std::ofstream of("output.txt");
-
-    // of << player1_info.player_name;
-    // of.close();
-
-    
-    
-    std::cout << player1_info.player_color << std::endl;   
-    std::cout << player1_info.player_name << std::endl;
-    std::cout << player1_info.player_layout;
-
-    std::cout << player2_info.player_color << std::endl;
-    std::cout << player2_info.player_name << std::endl;
-    std::cout << player2_info.player_qqnumber << std::endl;
-    std::cout << player2_info.player_layout;
-
-    in_file.close();
-}
-
-void testread2() {
-    std::ifstream in_file(file_dir, std::ios::binary);
-    if (!in_file) {
-        std::cerr << "open error, file_dir: " << file_dir << std::endl;
-        return;
-    }
-
-    JGSTotalInfoBlock info;
-    in_file.read(reinterpret_cast<char*>(&info), sizeof(info));
-
-    JGSEventBlock event1;
-    
-    
-    auto& os = std::cout;
-
-    os << info << "\n";
-    for (int i = 0; i < 5; ++i) {
-        in_file.read(reinterpret_cast<char*>(&event1), sizeof(event1));
-        // for (size_t i = 0; i < sizeof(event1); ++i) {
-        //     printf("%x ", event1.byte[i]);
-        // }
-        // printf("\n");
-        os << event1 << std::endl;
-    }
-
-    
-    Player::ptr player = std::make_shared<Player>(info.player_info_block[3]);
-
-    player->remove_item({0x0a, 0x05});
-    std::cout << player->get_current_score() << std::endl;
-
-    // Position pos {0x0B, 0x0A};
-    // pos.rotate_counter_clockwise(2);
-    // std::cout << pos <<std::endl;
-
-    in_file.close();
 }
 
 int main(int argc, char** argv) {
+    // system("chcp 65001");
     static_assert(sizeof(ItemColor) == 1);
     static_assert(sizeof(ItemType) == 1);
     static_assert(sizeof(bool) == 1);
@@ -122,21 +59,20 @@ int main(int argc, char** argv) {
     static_assert(sizeof(JGSTotalInfoBlock) == 0x19c);
     static_assert(sizeof(JGSEventBlock) == 10);
 
-    // test
-    std::cout << ConfigManager::getUniqueInstance()->addConfigFile("default", "config.json") << std::endl;
-    auto v = ConfigManager::getUniqueInstance()->getConfig("default")->at("item_score");
-    for (auto&& [name, value] : v.as_object()) {
-        std::cout << name << ": [" << value.as_array().at(0) << ", " << value.as_array().at(1) << "]\n";
-    }
-    try {
-        ConfigManager::getUniqueInstance()->getConfig("default")->at("1");
-    } catch (const std::out_of_range& oor) {
-        std::cerr << oor.what() << std::endl;
-    }
-    
-    
+    // test config
+    // std::cout << ConfigManager::getUniqueInstance()->addConfigFile("default", "config.json") << std::endl;
+    // auto v = ConfigManager::getUniqueInstance()->getConfig("default")->at("item_score");
+    // for (auto&& [name, value] : v.as_object()) {
+    //     std::cout << name << ": [" << value.as_array().at(0) << ", " << value.as_array().at(1) << "]\n";
+    // }
+    // try {
+    //     ConfigManager::getUniqueInstance()->getConfig("default")->at("1");
+    // } catch (const std::out_of_range& oor) {
+    //     std::cerr << oor.what() << std::endl;
+    // }
 
-    testread2();
+    testGame();
+    
 
     return 0;
 }
