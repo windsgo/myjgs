@@ -6,6 +6,12 @@
 
 #define ItemTypeStringShort
 
+#define _disable_copy(Class) \
+Class(const Class&) = delete;\
+Class& operator=(const Class&) = delete;
+
+#define _unused(val) {}
+
 // explicitly size to 1 byte
 enum ItemType : uint8_t
 {
@@ -47,6 +53,7 @@ std::ostream &operator<<(std::ostream &os, const ItemType &item_type);
 std::ostream &operator<<(std::ostream &os, const ItemColor &item_color);
 
 using Axis = uint8_t;
+// GlobalAxis Position
 struct __attribute__((__packed__)) Position
 {
     static constexpr Axis max_axis = 0x10;
@@ -55,7 +62,28 @@ struct __attribute__((__packed__)) Position
     Axis col;
     bool operator==(const Position& rhs) const {return (row == rhs.row && col == rhs.col);}
     bool is_none() const {return (*this == NonePosition);}
+    
+    // rotate `times` * 90 degrees, return rotated position value
+    void rotate_counter_clockwise(int times);
+    static Position rotate_counter_clockwise(const Position& pos, int times);
+
+    // convert item's pos in JGSLayoutBlock to default (YELLOW) GlobalAxis Position
+    static Position from_init_layout_pos(int row, int col);
 };
+
+// in order to use std::unordered_map
+// define the hash<Position> 
+namespace std
+{
+    template<>
+    struct hash<Position>
+    {
+        size_t operator() (const Position& p) const noexcept
+        {
+            return  hash<decltype(p.row << 2 + p.col)>()(p.row << 2 + p.col);
+        }
+    }; // 间接调用原生Hash.
+}
 
 std::ostream &operator<<(std::ostream &os, const Position& pos);
 

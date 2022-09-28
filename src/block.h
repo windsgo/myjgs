@@ -36,6 +36,7 @@ public:
         assert(col >= 0 && col < col_num);
         return _items[row][col];
     }
+
 private:
     _ItemType _items[row_num][col_num];
 };

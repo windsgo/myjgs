@@ -94,10 +94,52 @@ std::ostream& operator<<(std::ostream& os, const ItemColor& item_color) {
 }
 
 static const Position NonePosition = {0, 0};
+void Position::rotate_counter_clockwise(int times) {
+    times = times % 4;
+    assert(times >= 0);
+    if (times == 0) {
+        return ;
+    } else if (times == 1) {
+        // Axis new_row = col;
+        // Axis new_col = max_axis - row;
+        auto old_row = this->row;
+        this->row = this->col;
+        this->col = (Axis)(max_axis - old_row);
+    } else if (times == 2) {
+        this->row = (Axis)(max_axis - this->row);
+        this->col = (Axis)(max_axis - this->col);
+    } else if (times == 3) {
+        auto old_row = this->col;
+        this->row = (Axis)(max_axis - this->col);
+        this->col = old_row;
+    }
+}
+
+Position Position::rotate_counter_clockwise(const Position& pos, int times) {
+    times = times % 4;
+    assert(times >= 0);
+    if (times == 0) {
+        return pos;
+    } else if (times == 1) {
+        // Axis new_row = col;
+        // Axis new_col = max_axis - row;
+        return {pos.col, (Axis)(max_axis - pos.row)};
+    } else if (times == 2) {
+        return {(Axis)(max_axis - pos.row), (Axis)(max_axis - pos.col)};
+    } else if (times == 3) {
+        return {(Axis)(max_axis - pos.col), pos.row};
+    } 
+
+    return pos;
+}
+
+Position Position::from_init_layout_pos(int row, int col) {
+    return {(Axis)(row + 0x0B), (Axis)(0x0A - col)};
+}
 
 std::ostream &operator<<(std::ostream &os, const Position& pos) {
     char buf[50];
-    sprintf(buf, "Pos(row:%2x, col:%2x)", pos.row, pos.col);
+    sprintf(buf, "(r:%2x, c:%2x)", pos.row, pos.col);
     os << buf;
     return os;
 }

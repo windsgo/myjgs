@@ -1,7 +1,7 @@
 #include "item.h"
 
 std::ostream& operator<<(std::ostream& os, const Item& item) {
-    os << item.get_type();
+    os << item._type << " " << item._color << " " << item._pos;
     return os;
 }
 

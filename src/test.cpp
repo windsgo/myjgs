@@ -13,6 +13,7 @@
 #include "item.h"
 #include "block.h"
 #include "event.h"
+#include "player.h"
 
 #include <cstdio>
 
@@ -89,16 +90,22 @@ void testread2() {
     os << info << "\n";
     for (int i = 0; i < 5; ++i) {
         in_file.read(reinterpret_cast<char*>(&event1), sizeof(event1));
-        for (size_t i = 0; i < sizeof(event1); ++i) {
-            printf("%x ", event1.byte[i]);
-        }
-        printf("\n");
+        // for (size_t i = 0; i < sizeof(event1); ++i) {
+        //     printf("%x ", event1.byte[i]);
+        // }
+        // printf("\n");
         os << event1 << std::endl;
     }
 
     
+    Player::ptr player = std::make_shared<Player>(info.player_info_block[3]);
 
-    
+    player->remove_item({0x0a, 0x05});
+    std::cout << player->get_current_score() << std::endl;
+
+    // Position pos {0x0B, 0x0A};
+    // pos.rotate_counter_clockwise(2);
+    // std::cout << pos <<std::endl;
 
     in_file.close();
 }
