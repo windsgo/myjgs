@@ -34,15 +34,21 @@ const std::string file_dir = "./test.jgs";
 
 //     return utf8str;
 // }    
-
+#include <sstream>
 void testGame() {
     try {
         myjgs::Game::ptr game = std::make_shared<myjgs::Game>(file_dir);
         game->process_all_events();
+        
+        std::stringbuf strbuf;
+        std::ostream str_os(&strbuf);
+        str_os << *game;
+        std::cout <<strbuf.str();
+
     } catch (const myjgs::GameException& e) {
-        std::cout << "gameexception:" << e.what() << std::endl;
+        std::cerr << "gameexception:" << e.what() << std::endl;
     } catch (const std::exception& e) {
-        std::cout << e.what() << std::endl;
+        std::cerr << e.what() << std::endl;
     }
 }
 

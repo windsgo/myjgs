@@ -1,8 +1,6 @@
-## configure
-cmake -B build
-
 ## build
+cmake -B build
 cmake --build build -j8
 
-## run
-build/test
+## run test
+build/test/test

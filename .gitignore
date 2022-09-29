@@ -1,3 +1,6 @@
 *.out
 build
 build/**
+bin/
+lib/
+install/

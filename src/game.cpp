@@ -10,7 +10,7 @@ Game::Game(const ::std::string &jgs_file_name)
 
 void Game::_init()
 {
-    ::std::ifstream ifs(_jgs_file_name);
+    ::std::ifstream ifs(_jgs_file_name, std::ios::binary);
     if (!ifs.is_open())
     {
         throw GameException("open file error");
@@ -50,7 +50,7 @@ void Game::_init()
             throw GameException("read events failed on: " + ::std::to_string(i));
         }
 
-        _event_list.push_back(::std::move(ev)); // here move makes no sense
+        _event_list.push_back(ev); // ev has no move constructor, copy and pushback here
     }
 
     ifs.close();
@@ -72,7 +72,7 @@ void Game::process_all_events()
         // _print();
         _process_event(ev);
     }
-    _print();
+    // _print();
 }
 
 void Game::_process_event(const JGSEventBlock &ev)
@@ -91,9 +91,10 @@ void Game::_process_event(const JGSEventBlock &ev)
         }
         break; // next event
 
-    case EventType::UnknownEventType:
-        ::std::cout << ev.event_type() << ::std::endl;
-        break;
+    // case EventType::UnknownEventType:
+    //     ::std::cerr << ev.event_type() << ::std::endl;
+    //     throw GameException("meet an unknown event");
+    //     break;
 
     case EventType::MoveEventType:
     {
@@ -147,6 +148,8 @@ void Game::_process_event(const JGSEventBlock &ev)
         }
 
         default:
+            ::std::cerr << ev.event_type() << ::std::endl;
+            throw GameException("meet an unknown event");
             break;
         }
 
