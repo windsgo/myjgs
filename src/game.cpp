@@ -1,5 +1,12 @@
 #include "game.h"
 
+// linux does not need to resolve ifstream with chinese names
+#if defined (__WIN32__) && defined(__QT)
+#include <QDataStream>
+#include <QFile>
+#include <QString>
+#endif // defined (__WIN32__) && defined(__QT)
+
 namespace myjgs {
 
 Game::Game(const ::std::string &jgs_file_name)
@@ -10,19 +17,37 @@ Game::Game(const ::std::string &jgs_file_name)
 
 void Game::_init()
 {
+#if defined (__WIN32__) && defined(__QT)
+    QFile q_file(_jgs_file_name.c_str());
+    if (!q_file.open(QIODevice::ReadOnly)) {
+        throw GameException("[q]open file error");
+    }
+#else
+
     ::std::ifstream ifs(_jgs_file_name, std::ios::binary);
     if (!ifs.is_open())
     {
         throw GameException("open file error");
     }
 
+#endif
+
     // read header
     JGSTotalInfoBlock total_info;
+
+#if defined (__WIN32__) && defined(__QT)
+    QDataStream q_datastream(&q_file);
+    q_datastream.readRawData(reinterpret_cast<char *>(&total_info), sizeof(total_info));
+    if (q_datastream.status() != QDataStream::Status::Ok) {
+        throw GameException("read file error 1");
+    }
+#else
     ifs.read(reinterpret_cast<char *>(&total_info), sizeof(total_info));
     if (ifs.bad())
     {
         throw GameException("read file error 1");
     }
+#endif
 
     if (memcmp(total_info.header_block.discription, "QQGame JQS", 10) != 0)
     {
@@ -44,16 +69,27 @@ void Game::_init()
     for (int i = 0; i < _total_steps; ++i)
     {
         JGSEventBlock ev;
+#if defined (__WIN32__) && defined(__QT)
+        q_datastream.readRawData(reinterpret_cast<char *>(&ev), sizeof(ev));
+        if (q_datastream.status() != QDataStream::Status::Ok) {
+            throw GameException("read file error 1");
+        }
+#else
         ifs.read(reinterpret_cast<char *>(&ev), sizeof(ev));
         if (ifs.bad())
         {
             throw GameException("read events failed on: " + ::std::to_string(i));
         }
+#endif
 
         _event_list.push_back(ev); // ev has no move constructor, copy and pushback here
     }
-
+#if defined (__WIN32__) && defined(__QT)
+    q_datastream.setDevice(nullptr);
+    q_file.close();
+#else
     ifs.close();
+#endif
 
     // for (_cur_event_iterator = _event_list.begin();
     //      _cur_event_iterator != _event_list.end();
