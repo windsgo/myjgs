@@ -151,7 +151,7 @@ namespace std
     {
         size_t operator() (const myjgs::Position& p) const noexcept
         {
-            return hash<decltype(p.row << 2 + p.col)>()(p.row << 2 + p.col);
+            return hash<decltype((p.row << 2) + p.col)>()((p.row << 2) + p.col);
         }
     }; // 间接调用原生Hash.
 }

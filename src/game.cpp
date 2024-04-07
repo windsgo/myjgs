@@ -59,10 +59,10 @@ void Game::_init()
 
     for (int i = 0; i < 4; ++i)
     {
-        Player::ptr player = ::std::make_shared<Player>(total_info.player_info_block[i]);
-        Player::ptr saved_player = ::std::make_shared<Player>(*player); // not used, deep copy
+        Player player {total_info.player_info_block[i]};
+        Player saved_player = player; // not used, deep copy
 
-        _color_player_map.insert(::std::make_pair(player->color(), player));
+        _color_player_map.emplace(player.color(), player);
     }
 
     // read events
@@ -120,7 +120,7 @@ void Game::_process_event(const JGSEventBlock &ev)
         // info event
         if (ev.info_result() == InfoResultType::InfoPlayerDead) {
             // std::cout << "dead:" << ev.info_dead_player_color() << std::endl;
-            _color_player_map.at(ev.info_dead_player_color())->clear();
+            _color_player_map.at(ev.info_dead_player_color()).clear();
         } else if (ev.info_result() == InfoResultType::InfoGameOver) {
             // game over
             return;
@@ -136,7 +136,9 @@ void Game::_process_event(const JGSEventBlock &ev)
     {
         // auto cur_move_color = ev.move_color(); 
         auto cur_move_color = _which_player(ev.move_start_pos());
-        auto cur_player = _color_player_map.at(cur_move_color);
+        auto& cur_player = _color_player_map.at(cur_move_color);
+        const auto& cur_item = cur_player.get_item(ev.move_start_pos());
+
         // std::cout << "move:" << cur_move_color << std::endl;
         // std::cout << ev << std::endl;
 
@@ -146,40 +148,73 @@ void Game::_process_event(const JGSEventBlock &ev)
         {
         case MoveResultType::ResultMove:
         {
-            cur_player->move_item(ev.move_start_pos(), ev.move_end_pos());
+            cur_player.move_item(ev.move_start_pos(), ev.move_end_pos());
             
             break;
         }
 
         case MoveResultType::ResultRebound:
         {
-            cur_player->remove_item(ev.move_start_pos());
+            // 获取击杀方, 击杀方子
+            auto target_color = _which_player(ev.move_end_pos());
+            if (target_color == PlayerColor::UNKNOWN_COLOR) {
+                throw GameException("Unknown Target Pos: ResultRebound");
+            }
+
+            auto& target_player = _color_player_map.at(target_color);
+            const auto& target_item = target_player.get_item(ev.move_end_pos());
+
+            // 告知
+            target_player.notify_kill_event(target_item, cur_item);
+            cur_player.notify_dead_event(target_item, cur_item);
+
+            // 更新棋盘
+            cur_player.remove_item(ev.move_start_pos());
             break;
         }
 
         case MoveResultType::ResultSwap:
         {
-            cur_player->remove_item(ev.move_start_pos());
-            auto target_color = _which_player(ev.move_end_pos(), cur_move_color);
+            // 获取目标方, 目标方子
+            auto target_color = _which_player(ev.move_end_pos());
             if (target_color == PlayerColor::UNKNOWN_COLOR) {
-                throw GameException("Unknown Target Pos: ResultSwap");
+                throw GameException("Unknown Target Pos: ResultRebound");
             }
 
-            _color_player_map.at(target_color)->remove_item(ev.move_end_pos());
+            auto& target_player = _color_player_map.at(target_color);
+            const auto& target_item = target_player.get_item(ev.move_end_pos());
+
+            // 告知 (打对这一操作，对于双方都是既击杀又死亡，可以这么来理解吧......)
+            target_player.notify_kill_event(target_item, cur_item);
+            cur_player.notify_dead_event(target_item, cur_item); // 对于被击杀, 是对方击杀己方
+
+            target_player.notify_dead_event(cur_item, target_item);
+            cur_player.notify_kill_event(cur_item, target_item); // 对于击杀, 是己方击杀对方
+
+            // 更新棋盘
+            cur_player.remove_item(ev.move_start_pos());
+            target_player.remove_item(ev.move_end_pos());
             break;
         }
 
         case MoveResultType::ResultEat:
         {
-            cur_player->move_item(ev.move_start_pos(), ev.move_end_pos());
-            auto target_color = _which_player(ev.move_end_pos(), cur_move_color);
-            // std::cout << _color_player_map.at(BLUE)->has_item(ev.move_end_pos()) << _color_player_map.at(YELLOW)->has_item(ev.move_end_pos()) << std::endl;
-            // std::cout << "eaten:" << target_color << std::endl;
+            // 获取目标方, 目标方子
+            auto target_color = _which_player(ev.move_end_pos());
             if (target_color == PlayerColor::UNKNOWN_COLOR) {
-                throw GameException("Unknown Target Pos: ResultSwap");
+                throw GameException("Unknown Target Pos: ResultRebound");
             }
 
-            _color_player_map.at(target_color)->remove_item(ev.move_end_pos());
+            auto& target_player = _color_player_map.at(target_color);
+            const auto& target_item = target_player.get_item(ev.move_end_pos());
+
+            // 告知
+            target_player.notify_dead_event(cur_item, target_item);
+            cur_player.notify_kill_event(cur_item, target_item);
+
+            // 更新棋盘
+            target_player.remove_item(ev.move_end_pos());
+            cur_player.move_item(ev.move_start_pos(), ev.move_end_pos());
             break;
         }
 
@@ -200,7 +235,7 @@ void Game::_process_event(const JGSEventBlock &ev)
 PlayerColor Game::_which_player(const Position& pos, PlayerColor ignore_color) const {
     for (const auto& [color, player] : _color_player_map) {
         if (color == ignore_color) continue;
-        if (player->has_item(pos)) {
+        if (player.has_item(pos)) {
             return color;
         }
     }
@@ -234,7 +269,7 @@ void Game::_print() const {
             if (color == PlayerColor::UNKNOWN_COLOR) {
                 os << "    ";
             } else {
-                os << (int)color << game._color_player_map.at(color)->get_item({row, Axis(col)})->get_type() << " ";
+                os << (int)color << game._color_player_map.at(color).get_item({row, Axis(col)}).get_type() << " ";
             }
         }
         os << "\n";

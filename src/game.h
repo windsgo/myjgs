@@ -24,11 +24,8 @@ public:
     // so process all events
     void process_all_events();
 
-    // get a copy of player
-    inline Player get_player(PlayerColor color) const {return *_color_player_map.at(color);}
-
-    inline int get_current_score(PlayerColor color) const
-    {return _color_player_map.at(color)->get_current_score();}
+    // get player
+    inline const Player& get_player(PlayerColor color) const {return _color_player_map.at(color);}
 
 private:
     void _init();
@@ -44,8 +41,8 @@ private:
     ::std::list<JGSEventBlock> _event_list;
     ::std::list<JGSEventBlock>::iterator _cur_event_iterator; // not used
 
-    ::std::unordered_map<ItemColor, Player::ptr> _saved_init_color_player_map; // not used, a deep copy
-    ::std::unordered_map<ItemColor, Player::ptr> _color_player_map;
+    ::std::unordered_map<ItemColor, Player> _saved_init_color_player_map; // not used, a deep copy
+    ::std::unordered_map<ItemColor, Player> _color_player_map;
 
     uint16_t _total_steps;
     PlayerColor _self_color;

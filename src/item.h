@@ -13,8 +13,8 @@ class Item
     friend ::std::ostream &operator<<(::std::ostream &os, const myjgs::Item &item);
 
 public:
-    using ptr = ::std::shared_ptr<Item>;
-    Item() = default;
+    // using ptr = ::std::shared_ptr<Item>;
+    // Item() = default;
     Item(const ItemType &type, const ItemColor &color, const Position &pos)
         : _type(type), _color(color), _pos(pos) {}
     

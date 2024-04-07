@@ -7,6 +7,7 @@ Player::Player(const JGSPLayerInfoBlock &player_info)
     memcpy(_name, player_info.player_name, 20);
     _qq = player_info.player_qqnumber;
     _color = player_info.player_color;
+    _color_str = itemcolor_type2string(_color);
     _init_layout = player_info.player_layout;
 
     for (int init_row = 0; init_row < JGSLayoutBlock::row_num; ++init_row)
@@ -36,8 +37,9 @@ Player::Player(const JGSPLayerInfoBlock &player_info)
             default:
                 break;
             }
-            Item::ptr i_p = std::make_shared<Item>(_init_layout.item(init_row, init_col), _color, pos);
-            _pos_item_map.insert(std::make_pair(pos, i_p));
+            // Item::ptr i_p = std::make_shared<Item>(_init_layout.item(init_row, init_col), _color, pos);
+            Item i {_init_layout.item(init_row, init_col), _color, pos};
+            _pos_item_map.emplace(pos, i);
         }
     }
    
@@ -49,17 +51,11 @@ void Player::remove_item(const Position& pos) {
     }
 }
 
-void Player::remove_item(Item::ptr item_ptr) {
-    if (_pos_item_map.erase(item_ptr->get_pos()) != 1) {
-        throw GameException("Player::remove_item failed");
-    }
-}
-
 int Player::get_current_score() const {
     int score = 0;
     for (const auto& [pos, item_p] : _pos_item_map) {
         _unused(pos);
-        score += item_score(item_p->get_type());
+        score += item_score(item_p.get_type());
     }
 
     return score;

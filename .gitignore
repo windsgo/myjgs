@@ -4,3 +4,5 @@ build/**
 bin/
 lib/
 install/
+.vscode
+.vscode/**

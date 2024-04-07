@@ -1,0 +1,24 @@
+-----------START------------
+Processing:/home/windsgo/Documents/codes/jgs/3rdParts/myjgs/中文/test2.jgs
+
+color:黄色
+qq:0
+name:刘运东
+remain socre:0
+
+color:蓝色
+qq:0
+name:敏
+remain socre:260
+
+color:绿色
+qq:0
+name:别改我网名
+remain socre:0
+
+color:紫色
+qq:652317892
+name:水中鱼翱游
+remain socre:95
+
+-----------END------------
